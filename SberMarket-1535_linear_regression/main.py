@@ -12,7 +12,7 @@ data = data.fillna(0)
 tfs = int(input('Testing field size: '))
 
 weeks = data['week'][-tfs:]
-# Удаляем колонку 'week'
+# Исключаем колонку 'week'
 data = data.drop(columns='week')
 
 # Обучающая и тестовая выборки
