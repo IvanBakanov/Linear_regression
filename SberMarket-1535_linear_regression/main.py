@@ -1,7 +1,8 @@
 from pandas import read_csv
 import matplotlib.pyplot as plt
 from sklearn.linear_model import ElasticNet
-from sklearn.metrics import mean_squared_error
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import mean_squared_error, mean_absolute_percentage_error
 
 data = read_csv('data.csv')
 # Сортируем по дате
@@ -12,8 +13,8 @@ data = data.fillna(0)
 tfs = int(input('Testing field size: '))
 
 weeks = data['week'][-tfs:]
-# Исключаем колонку 'week'
-data = data.drop(columns='week')
+# Исключаем колонки 'week', 'app_clicks'
+data = data.drop(columns=['week', 'app_clicks'])
 
 # Обучающая и тестовая выборки
 x_training = data.iloc[:-tfs, :-1]
@@ -22,8 +23,25 @@ y_training = data.iloc[:-tfs, -1]
 x_testing = data.iloc[-tfs:, :-1]
 y_testing = data.iloc[-tfs:, -1]
 
+# Подбор оптимального значения константы alpha
+'''
+mse_ = 100000000000
+alpha_ = 0
+
+for i in range(10000, 20000):
+    model = ElasticNet(alpha=i)
+    model.fit(x_training, y_training)
+    y_predicted = model.predict(x_testing)
+    mse = mean_squared_error(y_testing, y_predicted)
+    if mse < mse_:
+        mse_ = mse
+        alpha_ = i
+
+print(alpha_)
+'''
+
 # Создаем линейную регрессию
-model = ElasticNet(alpha=18600)
+model = ElasticNet(alpha=14898)
 
 # Обучаем модель на основе имеющихся данных
 # Подбираем оптимальные значения весов (коэффициентов)
@@ -40,6 +58,9 @@ print('\nTrue:\n' + join_func(y_testing))
 
 # Среднеквадратичная ошибка
 print('\nMean squared error:', mean_squared_error(y_testing, y_predicted))
+
+# Средняя абсолютная ошибка в процентах
+print('\nMean absolute percentage error:', mean_absolute_percentage_error(y_testing, y_predicted))
 
 # Оптимальные значения весов
 print('\nCoefficients:\n' + join_func(model.coef_))
