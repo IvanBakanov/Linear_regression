@@ -1,7 +1,6 @@
 from pandas import read_csv
 import matplotlib.pyplot as plt
 from sklearn.linear_model import ElasticNet
-from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import mean_squared_error, mean_absolute_percentage_error
 
 data = read_csv('data.csv')
@@ -15,6 +14,7 @@ tfs = int(input('Testing field size: '))
 weeks = data['week'][-tfs:]
 # Исключаем колонки 'week', 'app_clicks'
 data = data.drop(columns=['week', 'app_clicks'])
+feature_names = list(data.head(1))
 
 # Обучающая и тестовая выборки
 x_training = data.iloc[:-tfs, :-1]
@@ -63,7 +63,10 @@ print('\nMean squared error:', mean_squared_error(y_testing, y_predicted))
 print('\nMean absolute percentage error:', mean_absolute_percentage_error(y_testing, y_predicted))
 
 # Оптимальные значения весов
-print('\nCoefficients:\n' + join_func(model.coef_))
+print('\nCoefficients:')
+for i in range(len(model.coef_)):
+    feature = feature_names[i]
+    print(feature, '-'*(30-len(feature)), model.coef_[i])
 
 # Визуализация
 manager = plt.get_current_fig_manager()
