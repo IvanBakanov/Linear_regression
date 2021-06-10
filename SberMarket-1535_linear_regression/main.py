@@ -14,7 +14,7 @@ tfs = int(input('Testing field size: '))
 weeks = data['week'][-tfs:]
 # Исключаем колонки 'week', 'app_clicks'
 data = data.drop(columns=['week', 'app_clicks'])
-feature_names = list(data.head(1))
+feature_names = data.head(1)
 
 # Обучающая и тестовая выборки
 x_training = data.iloc[:-tfs, :-1]
@@ -47,14 +47,20 @@ model = ElasticNet(alpha=14898)
 # Подбираем оптимальные значения весов (коэффициентов)
 model.fit(x_training, y_training)
 
-join_func = lambda arg: '\n'.join(map(str, arg))
+# Вспомогательная функция вывода информации в консоль
+def smart_print(title, array_1, array_2):
+    array_1, array_2 = list(array_1), list(array_2)
+    print(f'\n{title}:')
+    for i in range(len(array_2)):
+        elem = array_1[i]
+        print(elem, '-'*(30-len(elem)), array_2[i])
 
 # Составляем предсказание количества заказов на основе тестового набора данных
 y_predicted = model.predict(x_testing)
-print('\nPrediction:\n' + join_func(y_predicted))
+smart_print('Prediction', weeks, y_predicted)
 
 # Реальные значения целевой переменной
-print('\nTrue:\n' + join_func(y_testing))
+smart_print('True', weeks, y_testing)
 
 # Среднеквадратичная ошибка
 print('\nMean squared error:', mean_squared_error(y_testing, y_predicted))
@@ -63,10 +69,7 @@ print('\nMean squared error:', mean_squared_error(y_testing, y_predicted))
 print('\nMean absolute percentage error:', mean_absolute_percentage_error(y_testing, y_predicted))
 
 # Оптимальные значения весов
-print('\nCoefficients:')
-for i in range(len(model.coef_)):
-    feature = feature_names[i]
-    print(feature, '-'*(30-len(feature)), model.coef_[i])
+smart_print('Coefficients', feature_names, model.coef_)
 
 # Визуализация
 manager = plt.get_current_fig_manager()
